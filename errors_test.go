@@ -1,7 +1,6 @@
 package errors
 
 import (
-	"errors"
 	. "gopkg.in/check.v1"
 	"testing"
 )
@@ -11,8 +10,8 @@ func Test(t *testing.T) {
 }
 
 var (
-	errTest1 = errors.New("err 1")
-	errTest2 = errors.New("err 2")
+	errTest1 = New("err 1")
+	errTest2 = New("err 2")
 )
 
 type ErrorSuite struct{}
