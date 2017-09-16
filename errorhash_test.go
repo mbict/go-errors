@@ -1,81 +1,63 @@
 package errors
 
 import (
-	"errors"
-	"testing"
+	. "gopkg.in/check.v1"
 )
 
-func TestAddErrorToErrorHash(t *testing.T) {
-	e := NewErrorHash()
-	e1 := errors.New("err 1")
-	e2 := errors.New("err 2")
+type ErrorHashSuite struct{}
 
-	e.Add("a", e1)
-	e.Add("b", e2)
-	e.Add("b", e1)
+var _ = Suite(&ErrorHashSuite{})
 
-	if len(e) != 2 {
-		t.Errorf("mismatch errors count, expected %d but got %d", 2, len(e))
-	}
+func (_ *ErrorHashSuite) TestToString(c *C) {
+	errs := NewErrorHash()
+	errs["A"] = Errors{errTest1, errTest2}
+	errs["B"] = Errors{errTest2}
 
-	if len(e["a"]) != 1 {
-		t.Errorf("mismatch errors count for key a, expected %d but got %d", 1, len(e["a"]))
-	}
-
-	if len(e["b"]) != 2 {
-		t.Errorf("mismatch errors count for key b, expected %d but got %d", 2, len(e["b"]))
-	}
+	c.Assert(errs.Error(), Equals, "A:[err 1, err 2], B:[err 2]")
 }
 
-func TestErrorHashToString(t *testing.T) {
-	e := NewErrorHash()
-	e1 := errors.New("err 1")
-	e2 := errors.New("err 2")
+func (_ *ErrorHashSuite) TestNoErrorsToEmptyString(c *C) {
+	errs := NewErrorHash()
 
-	e.Add("a", e1)
-	if e.Error() != "a:[err 1]" {
-		t.Errorf("expected message `%s` but got `%s`", "a:[err 1]", e.Error())
-	}
-
-	e.Add("b", e2)
-	if e.Error() != "a:[err 1], b:[err 2]" {
-		t.Errorf("expected message `%s` but got `%s`", "a:[err 1], b:[err 2]", e.Error())
-	}
-
-	e.Add("b", e1)
-	if e.Error() != "a:[err 1], b:[err 2, err 1]" {
-		t.Errorf("expected message `%s` but got `%s`", "a:[err 1], b:[err 2, err 1]", e.Error())
-	}
+	c.Assert(errs, ErrorMatches, "")
 }
 
-func TestErrorHashHasString(t *testing.T) {
-	e := NewErrorHash()
-	e1 := errors.New("err 1")
-	e2 := errors.New("err 2")
-	e.Add("a", e1)
-	e.Add("a", e2)
+func (_ *ErrorHashSuite) TestAdd(c *C) {
+	errs := NewErrorHash()
 
-	if e.HasString("a", "err 2") != true {
-		t.Error("expected true")
-	}
+	errs.Add("A", errTest1)
+	errs.Add("B", errTest1)
+	errs.Add("A", errTest2)
 
-	if e.HasString("b", "err 2") != false {
-		t.Error("expected false")
-	}
+	c.Assert(errs, HasLen, 2)
+	c.Assert(errs["A"], HasLen, 2)
+	c.Assert(errs["A"], DeepEquals, Errors{errTest1, errTest2})
+	c.Assert(errs["B"], HasLen, 1)
+	c.Assert(errs["B"], DeepEquals, Errors{errTest1})
 }
 
-func TestErrorHashHasError(t *testing.T) {
-	e := NewErrorHash()
-	e1 := errors.New("err 1")
-	e2 := errors.New("err 2")
-	e.Add("a", e1)
-	e.Add("a", e2)
+func (_ *ErrorHashSuite) TestHas(c *C) {
+	errs := NewErrorHash()
+	errs["A"] = Errors{errTest2}
 
-	if e.HasError("a", e2) != true {
-		t.Error("expected true")
-	}
+	c.Assert(errs.Has("B"), Equals, false)
+	c.Assert(errs.Has("A"), Equals, true)
+}
 
-	if e.HasError("b", e2) != false {
-		t.Error("expected false")
-	}
+func (_ *ErrorHashSuite) TestHasString(c *C) {
+	errs := NewErrorHash()
+	errs["A"] = Errors{errTest2}
+
+	c.Assert(errs.HasString("B", errTest2.Error()), Equals, false)
+	c.Assert(errs.HasString("A", errTest1.Error()), Equals, false)
+	c.Assert(errs.HasString("A", errTest2.Error()), Equals, true)
+}
+
+func (_ *ErrorHashSuite) TestHasError(c *C) {
+	errs := NewErrorHash()
+	errs["A"] = Errors{errTest2}
+
+	c.Assert(errs.HasError("B", errTest2), Equals, false)
+	c.Assert(errs.HasError("A", errTest1), Equals, false)
+	c.Assert(errs.HasError("A", errTest2), Equals, true)
 }

@@ -2,34 +2,57 @@ package errors
 
 import (
 	"errors"
+	. "gopkg.in/check.v1"
 	"testing"
 )
 
-func TestAddErrorToErrors(t *testing.T) {
-	var e Errors
-	e1 := errors.New("err 1")
-	e2 := errors.New("err 2")
-
-	e.Add(e1)
-	e.Add(e2)
-
-	if len(e) != 2 {
-		t.Errorf("mismatch errors count, expected %d but got %d", 2, len(e))
-	}
+func Test(t *testing.T) {
+	TestingT(t)
 }
 
-func TestErrorsToString(t *testing.T) {
-	var e Errors
-	e1 := errors.New("err 1")
-	e2 := errors.New("err 2")
+var (
+	errTest1 = errors.New("err 1")
+	errTest2 = errors.New("err 2")
+)
 
-	e.Add(e1)
-	if e.Error() != "err 1" {
-		t.Errorf("expected message `%s` but got `%s`", "err 1", e.Error())
-	}
+type ErrorSuite struct{}
 
-	e.Add(e2)
-	if e.Error() != "err 1, err 2" {
-		t.Errorf("expected message `%s` but got `%s`", "err 1, err 2", e.Error())
-	}
+var _ = Suite(&ErrorSuite{})
+
+func (_ *ErrorSuite) TestToString(c *C) {
+	errs := Errors{errTest1}
+	c.Assert(errs.Error(), Matches, "err 1")
+
+	errs = Errors{errTest1, errTest2}
+	c.Assert(errs.Error(), Matches, "err 1, err 2")
+}
+
+func (_ *ErrorSuite) TestNoErrorsToEmptyString(c *C) {
+	errs := Errors{}
+
+	c.Assert(errs, ErrorMatches, "")
+}
+
+func (_ *ErrorSuite) TestAdd(c *C) {
+	errs := Errors{}
+
+	errs.Add(errTest1)
+	errs.Add(errTest2)
+
+	c.Assert(errs, HasLen, 2)
+	c.Assert(errs, DeepEquals, Errors{errTest1, errTest2})
+}
+
+func (_ *ErrorSuite) TestHasString(c *C) {
+	errs := Errors{errTest2}
+
+	c.Assert(errs.HasString(errTest1.Error()), Equals, false)
+	c.Assert(errs.HasString(errTest2.Error()), Equals, true)
+}
+
+func (_ *ErrorSuite) TestHasError(c *C) {
+	errs := Errors{errTest2}
+
+	c.Assert(errs.HasError(errTest1), Equals, false)
+	c.Assert(errs.HasError(errTest2), Equals, true)
 }

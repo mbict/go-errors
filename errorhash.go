@@ -41,14 +41,12 @@ func (eh ErrorHash) Add(id string, err error) {
 	eh[id] = append(eh[id], err)
 }
 
-
 // Has is a helper function to check if there is a error in the ErrorMap for the
 // corresponding id/key name. Handy for use with the template funcion map
 func (eh ErrorHash) Has(id string) bool {
 	errs, ok := eh[id]
 	return ok && len(errs) > 0
 }
-
 
 // HasString checks if there is a specific error string message in the ErrorHash
 // for the corresponding id/key
