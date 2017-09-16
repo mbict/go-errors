@@ -18,7 +18,7 @@ func NewErrorHash() ErrorHash {
 func (eh ErrorHash) Error() string {
 	//sort by key
 	index := make([]string, 0, len(eh))
-	for key, _ := range eh {
+	for key := range eh {
 		index = append(index, key)
 	}
 	sort.Strings(index)

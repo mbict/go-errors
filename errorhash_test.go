@@ -6,9 +6,9 @@ import (
 
 type ErrorHashSuite struct{}
 
-var _ = Suite(&ErrorHashSuite{})
+var es = Suite(&ErrorHashSuite{})
 
-func (_ *ErrorHashSuite) TestToString(c *C) {
+func (es *ErrorHashSuite) TestToString(c *C) {
 	errs := NewErrorHash()
 	errs["A"] = Errors{errTest1, errTest2}
 	errs["B"] = Errors{errTest2}
@@ -16,13 +16,13 @@ func (_ *ErrorHashSuite) TestToString(c *C) {
 	c.Assert(errs.Error(), Equals, "A:[err 1, err 2], B:[err 2]")
 }
 
-func (_ *ErrorHashSuite) TestNoErrorsToEmptyString(c *C) {
+func (es *ErrorHashSuite) TestNoErrorsToEmptyString(c *C) {
 	errs := NewErrorHash()
 
 	c.Assert(errs, ErrorMatches, "")
 }
 
-func (_ *ErrorHashSuite) TestAdd(c *C) {
+func (es *ErrorHashSuite) TestAdd(c *C) {
 	errs := NewErrorHash()
 
 	errs.Add("A", errTest1)
@@ -36,7 +36,7 @@ func (_ *ErrorHashSuite) TestAdd(c *C) {
 	c.Assert(errs["B"], DeepEquals, Errors{errTest1})
 }
 
-func (_ *ErrorHashSuite) TestHas(c *C) {
+func (es *ErrorHashSuite) TestHas(c *C) {
 	errs := NewErrorHash()
 	errs["A"] = Errors{errTest2}
 
@@ -44,7 +44,7 @@ func (_ *ErrorHashSuite) TestHas(c *C) {
 	c.Assert(errs.Has("A"), Equals, true)
 }
 
-func (_ *ErrorHashSuite) TestHasString(c *C) {
+func (es *ErrorHashSuite) TestHasString(c *C) {
 	errs := NewErrorHash()
 	errs["A"] = Errors{errTest2}
 
@@ -53,7 +53,7 @@ func (_ *ErrorHashSuite) TestHasString(c *C) {
 	c.Assert(errs.HasString("A", errTest2.Error()), Equals, true)
 }
 
-func (_ *ErrorHashSuite) TestHasError(c *C) {
+func (es *ErrorHashSuite) TestHasError(c *C) {
 	errs := NewErrorHash()
 	errs["A"] = Errors{errTest2}
 

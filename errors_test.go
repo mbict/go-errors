@@ -19,7 +19,7 @@ type ErrorSuite struct{}
 
 var _ = Suite(&ErrorSuite{})
 
-func (_ *ErrorSuite) TestToString(c *C) {
+func (es *ErrorSuite) TestToString(c *C) {
 	errs := Errors{errTest1}
 	c.Assert(errs.Error(), Matches, "err 1")
 
@@ -27,13 +27,13 @@ func (_ *ErrorSuite) TestToString(c *C) {
 	c.Assert(errs.Error(), Matches, "err 1, err 2")
 }
 
-func (_ *ErrorSuite) TestNoErrorsToEmptyString(c *C) {
+func (es *ErrorSuite) TestNoErrorsToEmptyString(c *C) {
 	errs := Errors{}
 
 	c.Assert(errs, ErrorMatches, "")
 }
 
-func (_ *ErrorSuite) TestAdd(c *C) {
+func (es *ErrorSuite) TestAdd(c *C) {
 	errs := Errors{}
 
 	errs.Add(errTest1)
@@ -43,14 +43,14 @@ func (_ *ErrorSuite) TestAdd(c *C) {
 	c.Assert(errs, DeepEquals, Errors{errTest1, errTest2})
 }
 
-func (_ *ErrorSuite) TestHasString(c *C) {
+func (es *ErrorSuite) TestHasString(c *C) {
 	errs := Errors{errTest2}
 
 	c.Assert(errs.HasString(errTest1.Error()), Equals, false)
 	c.Assert(errs.HasString(errTest2.Error()), Equals, true)
 }
 
-func (_ *ErrorSuite) TestHasError(c *C) {
+func (es *ErrorSuite) TestHasError(c *C) {
 	errs := Errors{errTest2}
 
 	c.Assert(errs.HasError(errTest1), Equals, false)
